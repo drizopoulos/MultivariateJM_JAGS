@@ -1,0 +1,17 @@
+{
+    "contents" : "root <- \"C:/Users/Dimitris/Documents/Papers/Paper9/\"\nrootOut <- paste(root, \"Results/Application/\", sep = \"\")\nlibrary(R2WinBUGS)\n\nsource(paste(root, \"Rpgm/Application/PrepareData.R\", sep = \"\"))\nsource(paste(root, \"Rpgm/Application/Models.R\", sep = \"\"))\nsetwd(rootOut)\n\n\nData$nb <- with(Data, ncZ1 + ncZ2 + ncZ3)\nData$mu0 <- rep(0, Data$nb)\nData$priorR.D <- diag(rep(0.25, Data$nb))\nDD <- Data[names(Data) %in% namesPwConst.DP.I]\n\nwrite.model(PwConst.DP.I, file.path(getwd(), \"PwConst.DP.I.txt\"))\ninits <- list(\n    betas1 = c(19.5474516, -0.3092732, 2.0592278, 0.4997537, -2.0044231, 5.4755351, \n               -6.2852801),\n    betas2 = c(23.70442388, 0.06231521, 1.56502518, 0.02787711, -0.60827309, 18.99244089, \n               4.85040687),\n    betas3 = c(-2.26867314, -0.02474365, -0.12157263, 0.02175284, 0.54916985, \n               -0.22119048, 1.19965498),\n    gammas = c(-0.01976846, 0.22264399, 0.01374726),\n    alphas = c(-5, -1, -5),\n    tau1 = 0.05500224,\n    tau2 = 0.1647081,\n    rho = 1,\n    latent = sample(DD$R, DD$N, TRUE)\n)\n\nparms <- c(\"betas1\", \"betas2\", \"betas3\", \"tau1\", \"tau2\", \"gammas\", \"alphas\", \"xi\", \"b\")\n\nfit <- bugs(DD, list(inits), parms, model.file = \"PwConst.DP.I.txt\", n.chains = 1, \n            n.iter = 120000, n.burnin = 20000, n.thin = 50, working.directory = getwd(), \n            clearWD = TRUE)\n\nroot. <- paste(rootOut, \"fitI.RData\", sep = \"\")\nsave(fit, file = root.)\n\n\n###############################################################################################\n\nlibrary(R2WinBUGS)\nroot <- \"C:/Users/Dimitris/Documents/Papers/Paper9/\"\nload(paste(root, \"Results/Application/ParamI/fitI.RData\", sep = \"\"))\n\nfitCoda <- as.mcmc.list(fit)\nfitCoda[[1]] <- fitCoda[[1]][, !colnames(fitCoda[[1]]) %in% \"deviance\"]\nplot(fitCoda, ask = TRUE)\nsummary(fitCoda)\n\nnams <- c(\"alphas[1]\", \"alphas[2]\", \"alphas[3]\", \"betas1[1]\", \"betas1[2]\", \"betas1[3]\", \n          \"betas1[4]\", \"betas1[5]\", \"betas1[6]\", \"betas1[7]\", \n          \"betas2[1]\", \"betas2[2]\", \"betas2[3]\", \"betas2[4]\", \"betas2[5]\", \"betas2[6]\", \n          \"betas2[7]\", \"betas3[1]\", \"betas3[2]\", \"betas3[3]\", \"betas3[4]\",\n          \"betas3[5]\", \"betas3[6]\", \"betas3[7]\", \"deviance\", \"gammas[1]\", \"gammas[2]\", \n          \"gammas[3]\", \"tau1\", \"tau2\", \"xi[1]\", \"xi[2]\", \"xi[3]\", \"xi[4]\")\nfitCoda. <- fitCoda[[1]][, nams]\n\n\nstr(summary(fitCoda.))\n\n\n\nsigma1 <- sqrt(1 / fitCoda[[1]][, \"tau1\"])\nsummary(sigma1)\n\nsigma2 <- sqrt(1 / fitCoda[[1]][, \"tau2\"])\nsummary(sigma2)\n\n\n\ngc()\n",
+    "created" : 1446146055348.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1965990593",
+    "id" : "F6A3D171",
+    "lastKnownWriteTime" : 1446146397,
+    "path" : "C:/Users/Dimitris/Documents/PackagesGitHub/MultivariateJM_JAGS/Rpgm/FitI.R",
+    "project_path" : "Rpgm/FitI.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
